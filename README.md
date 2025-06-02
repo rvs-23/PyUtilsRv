@@ -38,39 +38,22 @@ Follow these instructions to set up the project locally for development and use.
     If this project were hosted on Git:
     ```bash
     git clone <repository_url>
-    cd python-utilities
+    cd PyUtilsRv
     ```
-    For now, you are working in your local `python-utilities` directory.
+    For now, you are working in your local `PyUtilsRv` directory.
 
 2.  **Create and Activate a Virtual Environment:**
-    It's crucial to work within a virtual environment. From the root of the `python-utilities` project directory:
+    It's crucial to work within a virtual environment & install dependencies there. Fortunately, uv has made this task simple. From the root of the `PyUtilsRv` project directory:
     ```bash
     # Using uv
-    uv venv
-    source .venv/bin/activate  # On macOS/Linux
-    # .venv\Scripts\Activate.ps1 # On Windows PowerShell
-    # .venv\Scripts\activate.bat   # On Windows CMD
+    uv sync
     ```
 
 3.  **Install Project in Editable Mode with Test Dependencies:**
     This step installs the `utilities` package itself (making it importable) along with dependencies needed for running tests (like `pytest`).
-    From the root of the `python-utilities` project directory (where `pyproject.toml` is):
+    From the root of the `PyUtilsRv` project directory (where `pyproject.toml` is):
     ```bash
     uv pip install -e .[test]
-    ```
-    *(If you don't have a `[test]` extra defined in `pyproject.toml` yet, you might install `pytest` separately: `uv pip install pytest` after `uv pip install -e .`)*
-
-    Your `pyproject.toml` should define `pytest` as a dependency, ideally under `[project.optional-dependencies]`:
-    ```toml
-    # pyproject.toml example snippet
-    [project]
-    name = "python-utilities" # Distribution name
-    # ... other project metadata ...
-
-    [project.optional-dependencies]
-    test = [
-        "pytest>=7.0" # Or your desired version
-    ]
     ```
 
 ## Development
