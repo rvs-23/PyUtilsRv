@@ -1,0 +1,55 @@
+[project]
+name = "python-utilities"
+version = "0.1.0"
+requires-python = ">=3.13"
+dependencies = [
+    "matplotlib>=3.10.3",
+    "numpy>=2.2.6",
+    "pandas>=2.2.3",
+    "pytest>=8.3.5",
+    "ruff>=0.11.12",
+    "scikit-learn>=1.6.1",
+]
+
+[tool.ruff]
+# Line length, target Python version, etc.
+line-length = 111
+target-version = "py313" 
+
+[tool.ruff.lint]
+# Select a base set of rules.
+# E/W: pycodestyle errors/warnings
+# F: Pyflakes
+# I: isort (import sorting)
+# UP: pyupgrade (modernize Python syntax)
+# B: flake8-bugbear (potential bugs and design problems)
+# SIM: flake8-simplify (simplify code)
+# ANN: flake8-annotations (we select it but then heavily use ignore to make it minimal.)
+select = ["E", "W", "F", "I", "UP", "B", "SIM", "ANN"]
+
+# To keep type hint warnings minimal, we ignore most flake8-annotations (ANN) rules.
+# This means Ruff won't complain about missing type hints in most common situations.
+ignore = [
+    "ANN001",  # Missing type annotation for function argument
+    "ANN002",  # Missing type annotation for *args
+    "ANN003",  # Missing type annotation for **kwargs
+    "ANN101",  # Missing type annotation for self in method
+    "ANN102",  # Missing type annotation for cls in classmethod
+    "ANN201",  # Missing return type annotation for public function
+    "ANN202",  # Missing return type annotation for private function
+    "ANN204",  # Missing return type annotation for special methods (e.g., __init__)
+    "ANN205",  # Missing return type annotation for staticmethod
+    "ANN206",  # Missing return type annotation for classmethod
+    "ANN401",  # Disallow `typing.Any` (allowing Any makes type hinting less strict)
+]
+
+[tool.ruff.format]
+quote-style = "double"             # Default: "double" (like Black)
+indent-style = "space"             # Default: "space"
+skip-magic-trailing-comma = false  # Default: false
+line-ending = "auto"               # Default: "auto"
+
+
+[tool.setuptools.packages.find]
+where = ["src"]  # Look for packages in the 'src' directory
+include = ["utilities*"] # Include the 'utilities' package and its sub-packages
