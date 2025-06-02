@@ -48,3 +48,4 @@ pytest_cache/
 
 # Build artifacts
 *.egg-info/
+build/
