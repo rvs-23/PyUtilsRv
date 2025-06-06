@@ -133,3 +133,170 @@ def hist_distribution(
         ax.legend()
 
     return fig, ax
+
+
+def draw_boxplot(
+    df: pd.DataFrame,
+    feature: str,
+    figsize: tuple[int, int] = (16, 6),
+    whisker_range: float = 1.5,
+    showfliers: float = True,
+    percentile_limits: tuple[float, float] | None = None,
+    fontsize: int = 12,
+    box_color: str = "lightblue",
+    median_color: str = "red",
+    whisker_color: str = "navy",
+    grid: bool = False,
+    title: str | None = None,
+    xlabel: str | None = None,
+    ylabel: str | None = None,
+):
+    """
+    Generates and returns a horizontal boxplot for a specified feature in a DataFrame,
+    with options to control whiskers, outliers, and zoomed‐in views.
+
+    Args:
+        df: pandas.DataFrame
+            Input DataFrame containing the data.
+        feature: str
+            The name of the numeric column (feature) to plot.
+        figsize: tuple (width, height)
+            Size of the figure (in inches). Defaults to (16, 6).
+        whisker_range: float
+            The “whis” parameter in boxplot (how far the whiskers extend beyond IQR).
+            Defaults to 1.5.
+        showfliers: bool
+            Whether to draw individual outlier points. If False, only whiskers and box
+            are shown. Defaults to True.
+        percentile_limits: tuple (low_pct, high_pct) or None
+            If specified (each between 0 and 1), clamps the x‐axis to the feature’s values
+            at those percentiles (e.g., (0.05, 0.95)). Defaults to None.
+        fontsize: int or float
+            Base font size (in points) for title, axis labels, and tick labels. Defaults to 12.
+        box_color: str or matplotlib color
+            Fill color for the IQR box. Defaults to "lightblue".
+        median_color: str or matplotlib color
+            Color for the median line and dashed median indicator. Defaults to "red".
+        whisker_color: str or matplotlib color
+            Color for whiskers and caps. Defaults to "navy".
+        grid: bool
+            If True, displays a background grid. Defaults to False.
+        title: str or None
+            Custom title for the plot. If None, a default title is generated.
+        xlabel: str or None
+            Custom label for the x‐axis. If None, defaults to the feature name.
+        ylabel: str or None
+            Custom label for the y‐axis. If None, defaults to an empty string.
+
+    Returns:
+        A tuple containing the matplotlib Figure and Axes objects (fig, ax).
+
+    Raises:
+        ValueError: If `percentile_limits` is provided but not in [(0 ≤ low_pct < high_pct ≤ 1)].
+                    If `feature` is not found in `df.columns`.
+
+    Example:
+        >>> import pandas as pd
+        >>> import numpy as np
+        >>> data = {
+        ...     'values': np.concatenate([
+        ...         np.random.normal(0, 1, 500),
+        ...         np.random.normal(5, 1, 500)
+        ...     ])
+        ... }
+        >>> df = pd.DataFrame(data)
+        >>> fig, ax = draw_boxplot(
+        ...     df, 'values',
+        ...     showfliers=False,
+        ...     percentile_limits=(0.05, 0.95),
+        ...     fontsize=14,
+        ...     box_color='lightgreen',
+        ...     median_color='purple',
+        ...     grid=True,
+        ...     title="Trimmed Boxplot of Values",
+        ...     xlabel="Value",
+        ...     ylabel=""
+        ... )
+        >>> # To show: plt.show()
+        >>> # To save: fig.savefig('boxplot.png')
+    """
+    if feature not in df.columns:
+        raise ValueError(f"Feature '{feature}' not found in DataFrame columns.")
+
+    data = df[feature].dropna()
+
+    # Create figure and axes
+    fig, ax = plt.subplots(figsize=figsize)
+
+    # Compute quartiles for potential xlim or annotation
+    Q1 = data.quantile(0.25)
+    Q3 = data.quantile(0.75)
+    IQR = Q3 - Q1
+    lower_whisker = Q1 - whisker_range * IQR
+    upper_whisker = Q3 + whisker_range * IQR
+
+    ax.boxplot(
+        x=data,
+        vert=False,
+        whis=whisker_range,
+        showfliers=showfliers,
+        patch_artist=True,
+        boxprops=dict(facecolor=box_color, edgecolor=whisker_color),
+        medianprops=dict(color=median_color, linewidth=2),
+        whiskerprops=dict(color=whisker_color, linewidth=1.5),
+        capprops=dict(color=whisker_color, linewidth=1.5),
+        flierprops=dict(marker="o", markerfacecolor=whisker_color, markersize=4, alpha=0.6),
+    )
+
+    # Title and labels
+    plot_title = title if title is not None else f"Boxplot of '{feature}'"
+    ax.set_title(plot_title, fontsize=fontsize + 2, pad=12)
+    ax.set_xlabel(xlabel if xlabel is not None else feature, fontsize=fontsize)
+    ax.set_ylabel(ylabel if ylabel is not None else "", fontsize=fontsize)
+
+    # Tick label font size
+    ax.tick_params(axis="both", which="major", labelsize=fontsize - 1)
+
+    # Optionally zoom in to a percentile window:
+    if percentile_limits is not None:
+        low_pct, high_pct = percentile_limits
+        if not (0 <= low_pct < high_pct <= 1):
+            raise ValueError("percentile_limits must be between 0 and 1, e.g. (0.05, 0.95).")
+        lower_clamp = data.quantile(low_pct)
+        upper_clamp = data.quantile(high_pct)
+        ax.set_xlim(lower_clamp, upper_clamp)
+        # Annotate percentile bounds
+        ax.annotate(
+            f"{int(low_pct * 100)}th pct →",
+            xy=(lower_clamp, 1),
+            xytext=(lower_clamp, 1.1),
+            textcoords="data",
+            arrowprops=dict(arrowstyle="->", color="gray"),
+            color="gray",
+            fontsize=fontsize - 2,
+            va="center",
+        )
+        ax.annotate(
+            f"← {int(high_pct * 100)}th pct",
+            xy=(upper_clamp, 1),
+            xytext=(upper_clamp, 1.1),
+            textcoords="data",
+            arrowprops=dict(arrowstyle="->", color="gray"),
+            color="gray",
+            fontsize=fontsize - 2,
+            va="center",
+        )
+    else:
+        # If not using percentile limits and outliers are hidden, zoom to whiskers
+        if not showfliers:
+            ax.set_xlim(lower_whisker, upper_whisker)
+
+    # Dashed vertical line at the true median
+    median_val = data.median()
+    ax.axvline(median_val, color=median_color, linestyle="--", linewidth=1)
+
+    # Optionally display grid
+    if grid:
+        ax.grid(True, linestyle="--", linewidth=0.5, alpha=0.7)
+
+    return fig, ax
