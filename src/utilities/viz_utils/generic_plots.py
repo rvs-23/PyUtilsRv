@@ -1,13 +1,8 @@
+from collections.abc import Callable, Sequence
+
 import matplotlib.pyplot as plt
 import pandas as pd
 from pandas.api.types import is_datetime64_any_dtype, is_numeric_dtype
-
-from typing import (
-    Optional,
-    Union,
-    Callable,
-    Sequence,
-)
 
 # Define Complex Types
 FigAxTuple = tuple[plt.Figure, plt.Axes]
