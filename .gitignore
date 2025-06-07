@@ -38,6 +38,7 @@ coverage.*
 *.cover
 .cache/
 pytest_cache/
+.coverage
 
 # ── VS Code / JetBrains / Editors ─────────────────────
 .vscode/
