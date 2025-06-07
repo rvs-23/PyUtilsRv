@@ -58,55 +58,6 @@ Follow these instructions to set up the project locally for development and use.
 
 ## Development
 
-### Project Structure
-
-This project follows a standard `src`-layout:
-.
-├── build
-│   ├── bdist.macosx-11.0-arm64
-│   └── lib
-│       └── utilities
-│           ├── __init__.py
-│           ├── dw_utils
-│           │   ├── __init__.py
-│           │   └── utils.py
-│           ├── ml_utils
-│           │   └── __init__.py
-│           └── viz_utils
-│               ├── __init__.py
-│               └── distribution_plots.py
-├── pyproject.toml
-├── README.md
-├── src
-│   ├── python_utilities.egg-info
-│   │   ├── dependency_links.txt
-│   │   ├── PKG-INFO
-│   │   ├── requires.txt
-│   │   ├── SOURCES.txt
-│   │   └── top_level.txt
-│   └── utilities
-│       ├── __init__.py
-│       ├── dw_utils
-│       │   ├── __init__.py
-│       │   └── utils.py
-│       ├── ml_utils
-│       │   └── __init__.py
-│       └── viz_utils
-│           ├── __init__.py
-│           └── distribution_plots.py
-├── tests
-│   ├── dw_utils
-│   │   ├── __pycache__
-│   │   │   └── test_utils.cpython-313-pytest-8.3.5.pyc
-│   │   └── test_utils.py
-│   ├── ml_utils
-│   └── viz_utils
-│       ├── __pycache__
-│       │   └── test_distribution_plots.cpython-313-pytest-8.3.5.pyc
-│       └── test_distribution_plots.py
-└── uv.lock
-
-
 ### Dependency Management with `uv`
 
 * Dependencies are defined in `pyproject.toml`.
@@ -166,6 +117,8 @@ Ensure your virtual environment is activated and you are in the root directory o
     ```bash
     pytest -v
     ```
+
+```Note: pytest is configured in pyproject.toml to automatically provide coverage reports``` 
 
 ## Key Learnings and Common Fixes Encountered
 
