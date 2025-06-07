@@ -201,5 +201,3 @@ This section documents some of the setup and development hurdles overcome during
         where = ["src"]
         include = ["utilities*"]
         ```
-    This clearly defines `utilities` as the single top-level package to be installed from the `src` directory.
-

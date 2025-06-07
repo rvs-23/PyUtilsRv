@@ -3,10 +3,12 @@ name = "python-utilities"
 version = "0.1.0"
 requires-python = ">=3.12"
 dependencies = [
+    "jupyterlab>=4.4.3",
     "matplotlib>=3.10.3",
     "numpy>=2.2.6",
     "pandas>=2.2.3",
     "pytest>=8.3.5",
+    "pytest-cov>=6.1.1",
     "ruff>=0.11.12",
     "scikit-learn>=1.6.1",
 ]
@@ -41,6 +43,7 @@ ignore = [
     "ANN205",  # Missing return type annotation for staticmethod
     "ANN206",  # Missing return type annotation for classmethod
     "ANN401",  # Disallow `typing.Any` (allowing Any makes type hinting less strict)
+    "B901"     # “use literal for dict” in tests
 ]
 
 [tool.ruff.format]
@@ -53,3 +56,19 @@ line-ending = "auto"               # Default: "auto"
 [tool.setuptools.packages.find]
 where = ["src"]  # Look for packages in the 'src' directory
 include = ["utilities*"] # Include the 'utilities' package and its sub-packages
+
+
+# === pytest configuration ===
+[tool.pytest.ini_options]
+# Automatically measure coverage *only* on our real package name
+addopts = "--cov=utilities --cov-report=term-missing"
+# Where our tests live
+testpaths = ["tests"]
+# Silence the CoverageWarning about “module ... never imported”
+filterwarnings = [
+  "ignore::coverage.exceptions.CoverageWarning"
+]
+
+[tool.coverage.run]
+# Only collect data under this import path
+source = ["utilities"]
