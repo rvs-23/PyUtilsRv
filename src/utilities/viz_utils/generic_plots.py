@@ -9,7 +9,7 @@ FigAxTuple = tuple[plt.Figure, plt.Axes]
 OptionalTupleLimits = tuple[float | None, float | None] | None
 
 
-def hist_distribution(
+def plot_hist_distribution(
     df: pd.DataFrame,
     feature: str,
     figsize: tuple[int, int] = (10, 6),
@@ -323,18 +323,18 @@ def plot_line_chart(
     agg_func: str | Callable = "mean",
     bins: int | Sequence[float] | None = None,
     datetime_format: str | None = None,
-    verbosity: int = 0
+    verbosity: int = 0,
 ) -> FigAxTuple:
     """
     Generates and returns a line chart for a specified x‐ and y‐column in a DataFrame,
-    with optional aggregation to reduce point frequency, flexible datetime parsing, and 
+    with optional aggregation to reduce point frequency, flexible datetime parsing, and
     verbosity-controlled logging.
 
     Args:
         df: pd.DataFrame
             Input DataFrame containing the data.
         x_col: str
-            Name of the column to use for the x‐axis (can be datetime, numeric, or mixed). 
+            Name of the column to use for the x‐axis (can be datetime, numeric, or mixed).
         y_col: str
             Name of the numeric column to plot on the y‐axis.
         figsize: Tuple[float, float]
@@ -359,14 +359,14 @@ def plot_line_chart(
             Custom label for the y‐axis. If None, defaults to y_col name.
         resample_rule: Optional[str]
             If x_col is datetime (or parsed as datetime), a Pandas offset alias
-            (e.g., "D", "W", "M", "Y") to resample the data before plotting. Aggregation 
+            (e.g., "D", "W", "M", "Y") to resample the data before plotting. Aggregation
             uses `agg_func`. Defaults to None (no resampling).
         agg_func: Union[str, Callable]
             Aggregation function to apply when resampling or binning (e.g., "mean", "sum", np.median,
             or a custom function). Defaults to "mean".
         bins: Optional[Union[int, Sequence[float]]]
             If x_col is numeric (and resample_rule is None), the number of equal‐width bins (int) or
-            specific bin edges (sequence) to group the x_data into. Data is aggregated per bin 
+            specific bin edges (sequence) to group the x_data into. Data is aggregated per bin
             using `agg_func`. Defaults to None (no binning).
         datetime_format: Optional[str]
             If x_col contains strings or mixed types that require a specific format, pass a format
@@ -407,7 +407,6 @@ def plot_line_chart(
         print(f"[VERBOSE] After dropna: {data.shape}")
 
     # Handle datetime parsing
-    parsed_datetime = False
     if datetime_format is not None:
         if datetime_format.lower() == "mixed":
             # Attempt to parse everything, coerce failures to NaT
@@ -432,15 +431,13 @@ def plot_line_chart(
                 x_data.loc[successful] = coerced.loc[successful]
                 if verbosity > 0:
                     print(f"[VERBOSE] x_data dtype after mixed parse (no resample): {x_data.dtype}")
-            parsed_datetime = True
         else:
             # Use the user-provided exact format
             try:
                 parsed = pd.to_datetime(x_data, format=datetime_format, errors="raise")
             except Exception as e:
-                raise ValueError(f"Error parsing '{x_col}' with format '{datetime_format}': {e}")
+                raise ValueError(f"Error parsing '{x_col}' with format '{datetime_format}': {e}") from e
             x_data = parsed
-            parsed_datetime = True
             if resample_rule is not None:
                 data[x_col] = x_data
             if verbosity > 0:
@@ -456,7 +453,6 @@ def plot_line_chart(
             data = data.loc[non_nat]
             x_data = coerced[non_nat]
             y_data = y_data.loc[non_nat]
-            parsed_datetime = True
             if verbosity > 0:
                 print(f"[VERBOSE] Parsed with default to_datetime for resample: {data.shape}")
 
@@ -480,7 +476,7 @@ def plot_line_chart(
         if not is_numeric_dtype(x_data):
             raise ValueError(f"Cannot bin non-numeric x_col '{x_col}'.")
         categories = pd.cut(x_data, bins=bins, duplicates="drop")
-        grouped = data.copy().assign(_bin=categories).groupby("_bin")[y_col].agg(agg_func)
+        grouped = data.copy().assign(_bin=categories).groupby("_bin", observed=False)[y_col].agg(agg_func)
         bin_intervals = grouped.index.categories if hasattr(grouped.index, "categories") else grouped.index
         x_plot = [(interval.left + interval.right) / 2 for interval in bin_intervals]
         y_plot = grouped.values
@@ -504,14 +500,7 @@ def plot_line_chart(
     fig, ax = plt.subplots(figsize=figsize)
 
     # Plot line (matplotlib handles datetimes or mixed types in x_plot)
-    ax.plot(
-        x_plot,
-        y_plot,
-        color=line_color,
-        linewidth=linewidth,
-        linestyle=linestyle,
-        marker=marker
-    )
+    ax.plot(x_plot, y_plot, color=line_color, linewidth=linewidth, linestyle=linestyle, marker=marker)
 
     # Rotate x‐tick labels if datetime
     if is_datetime64_any_dtype(pd.Series(x_plot)):

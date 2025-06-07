@@ -42,6 +42,7 @@ ignore = [
     "ANN205",  # Missing return type annotation for staticmethod
     "ANN206",  # Missing return type annotation for classmethod
     "ANN401",  # Disallow `typing.Any` (allowing Any makes type hinting less strict)
+    "B901"     # “use literal for dict” in tests
 ]
 
 [tool.ruff.format]
